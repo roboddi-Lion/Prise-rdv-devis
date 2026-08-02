@@ -45,6 +45,9 @@ class Lion_RDV_Devis_Shortcode {
 				'restUrl'  => esc_url_raw( rest_url( 'lion-rdv-devis/v1' ) ),
 				'services' => $services,
 				'i18n'     => array(
+					'stepProject'   => __( 'Projet', 'lion-rdv-devis' ),
+					'stepSlot'      => __( 'Créneau', 'lion-rdv-devis' ),
+					'stepContact'   => __( 'Coordonnées', 'lion-rdv-devis' ),
 					'chooseService' => __( 'Quel type de projet souhaitez-vous faire chiffrer ?', 'lion-rdv-devis' ),
 					'loadingSlots'  => __( 'Chargement des créneaux disponibles…', 'lion-rdv-devis' ),
 					'noSlots'       => __( 'Aucun créneau disponible pour le moment. Merci de nous contacter directement.', 'lion-rdv-devis' ),

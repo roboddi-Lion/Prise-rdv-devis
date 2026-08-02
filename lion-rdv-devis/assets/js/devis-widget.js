@@ -50,6 +50,37 @@
 		container.insertBefore( msg, container.firstChild );
 	}
 
+	var PROGRESS_STEPS = [
+		{ key: 'service', label: function () { return i18n.stepProject; } },
+		{ key: 'slots', label: function () { return i18n.stepSlot; } },
+		{ key: 'form', label: function () { return i18n.stepContact; } },
+	];
+
+	function renderProgress( activeKey ) {
+		var activeIndex = PROGRESS_STEPS.map( function ( s ) { return s.key; } ).indexOf( activeKey );
+		var wrap = el( 'div', { class: 'lion-rdv-devis-progress' } );
+
+		PROGRESS_STEPS.forEach( function ( step, index ) {
+			var state = index < activeIndex ? 'is-done' : ( index === activeIndex ? 'is-active' : '' );
+			wrap.appendChild(
+				el( 'div', { class: 'lion-rdv-devis-progress-step' + ( state ? ' ' + state : '' ) }, [
+					el( 'span', { class: 'lion-rdv-devis-progress-dot', text: index < activeIndex ? '✓' : String( index + 1 ) } ),
+					el( 'span', { class: 'lion-rdv-devis-progress-label', text: step.label() } ),
+				] )
+			);
+		} );
+
+		return wrap;
+	}
+
+	// Toutes les étapes (sauf l'écran final) partagent la même structure de
+	// base : un conteneur avec l'indicateur de progression en premier enfant.
+	function stepShell( activeKey ) {
+		var stepEl = el( 'div', { class: 'lion-rdv-devis-step' } );
+		stepEl.appendChild( renderProgress( activeKey ) );
+		return stepEl;
+	}
+
 	function render() {
 		clear( root );
 		if ( 'service' === state.step ) {
@@ -64,7 +95,7 @@
 	}
 
 	function renderServiceStep() {
-		var stepEl = el( 'div', { class: 'lion-rdv-devis-step' } );
+		var stepEl = stepShell( 'service' );
 		stepEl.appendChild( el( 'h2', { text: i18n.chooseService } ) );
 
 		var grid = el( 'div', { class: 'lion-rdv-devis-service-grid' } );
@@ -101,9 +132,14 @@
 	}
 
 	function fetchSlots() {
-		var stepEl = el( 'div', { class: 'lion-rdv-devis-step' } );
+		var stepEl = stepShell( 'slots' );
 		stepEl.appendChild( backButton( 'service' ) );
-		stepEl.appendChild( el( 'div', { class: 'lion-rdv-devis-loading', text: i18n.loadingSlots } ) );
+		stepEl.appendChild(
+			el( 'div', { class: 'lion-rdv-devis-loading' }, [
+				el( 'span', { class: 'lion-rdv-devis-spinner' } ),
+				document.createTextNode( i18n.loadingSlots ),
+			] )
+		);
 		clear( root );
 		root.appendChild( stepEl );
 
@@ -149,7 +185,7 @@
 	}
 
 	function renderSlotsStep() {
-		var stepEl = el( 'div', { class: 'lion-rdv-devis-step' } );
+		var stepEl = stepShell( 'slots' );
 		stepEl.appendChild( backButton( 'service' ) );
 
 		if ( ! state.days.length ) {
@@ -220,7 +256,7 @@
 	}
 
 	function renderFormStep() {
-		var stepEl = el( 'div', { class: 'lion-rdv-devis-step' } );
+		var stepEl = stepShell( 'form' );
 		stepEl.appendChild( backButton( 'slots' ) );
 
 		stepEl.appendChild(

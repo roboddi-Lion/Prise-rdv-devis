@@ -46,11 +46,116 @@
 	color: inherit;
 }
 
+@keyframes lion-rdv-devis-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes lion-rdv-devis-pop-in {
+	from {
+		opacity: 0;
+		transform: scale(0.7);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes lion-rdv-devis-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lion-rdv-devis-step,
+	.lion-rdv-devis-confirmation .lion-rdv-devis-icon {
+		animation: none !important;
+	}
+}
+
 .lion-rdv-devis-step {
 	/* Pas de fond ni de bordure par défaut : le widget se fond dans la mise
 	   en page du thème plutôt que de s'afficher comme une boîte à part.
 	   Ajoutez background/border ici si vous préférez un encart visible. */
 	padding: 0;
+	animation: lion-rdv-devis-fade-in 0.25s ease both;
+}
+
+/* ---- Indicateur d'étape (Projet > Créneau > Coordonnées) ---- */
+
+.lion-rdv-devis-progress {
+	display: flex;
+	margin-bottom: 1.75rem;
+}
+
+.lion-rdv-devis-progress-step {
+	position: relative;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.lion-rdv-devis-progress-step:not(:last-child)::after {
+	content: '';
+	position: absolute;
+	top: 13px;
+	left: 50%;
+	width: 100%;
+	height: 2px;
+	background: var(--lion-rdv-border);
+}
+
+.lion-rdv-devis-progress-step.is-done:not(:last-child)::after {
+	background: var(--lion-rdv-primary);
+}
+
+.lion-rdv-devis-progress-dot {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	margin-bottom: 0.4rem;
+	border: 2px solid var(--lion-rdv-border);
+	border-radius: 50%;
+	background: var(--lion-rdv-bg, #fff);
+	color: var(--lion-rdv-muted);
+	font-size: 0.8rem;
+	font-weight: 700;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.lion-rdv-devis-progress-step.is-active .lion-rdv-devis-progress-dot {
+	border-color: var(--lion-rdv-primary);
+	color: var(--lion-rdv-primary);
+}
+
+.lion-rdv-devis-progress-step.is-done .lion-rdv-devis-progress-dot {
+	border-color: var(--lion-rdv-primary);
+	background: var(--lion-rdv-primary);
+	color: #fff;
+}
+
+.lion-rdv-devis-progress-label {
+	font-size: 0.78rem;
+	color: var(--lion-rdv-muted);
+}
+
+.lion-rdv-devis-progress-step.is-active .lion-rdv-devis-progress-label {
+	color: var(--lion-rdv-text);
+	font-weight: 600;
 }
 
 .lion-rdv-devis-service-grid {
@@ -82,12 +187,25 @@
 	cursor: pointer;
 	font: inherit;
 	color: inherit;
-	transition: border-color 0.15s ease, transform 0.05s ease;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .lion-rdv-devis-service-card:hover,
 .lion-rdv-devis-service-card:focus-visible {
 	border-color: var(--lion-rdv-primary);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+	transform: translateY(-2px);
+}
+
+.lion-rdv-devis-service-card:focus-visible {
+	outline: 2px solid var(--lion-rdv-primary);
+	outline-offset: 2px;
+}
+
+.lion-rdv-devis-service-card:active {
+	transform: translateY(0);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .lion-rdv-devis-service-card strong {
@@ -105,13 +223,21 @@
 }
 
 .lion-rdv-devis-back {
+	display: inline-flex;
+	align-items: center;
 	background: none;
 	border: none;
 	color: var(--lion-rdv-primary);
 	font: inherit;
+	font-weight: 600;
 	cursor: pointer;
 	padding: 0;
 	margin-bottom: 1rem;
+	transition: transform 0.15s ease;
+}
+
+.lion-rdv-devis-back:hover {
+	transform: translateX(-2px);
 }
 
 .lion-rdv-devis-days {
@@ -124,16 +250,21 @@
 .lion-rdv-devis-day-btn {
 	border: 1px solid var(--lion-rdv-border);
 	background: var(--lion-rdv-bg-soft);
-	border-radius: 8px;
-	padding: 0.5rem 0.85rem;
+	border-radius: 999px;
+	padding: 0.5rem 1rem;
 	font: inherit;
 	font-size: 0.9rem;
 	cursor: pointer;
 	text-transform: capitalize;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
-.lion-rdv-devis-day-btn.is-active,
 .lion-rdv-devis-day-btn:hover {
+	border-color: var(--lion-rdv-primary);
+	transform: translateY(-1px);
+}
+
+.lion-rdv-devis-day-btn.is-active {
 	background: var(--lion-rdv-primary);
 	border-color: var(--lion-rdv-primary);
 	color: #fff;
@@ -148,21 +279,26 @@
 .lion-rdv-devis-slot-btn {
 	border: 1px solid var(--lion-rdv-border);
 	background: var(--lion-rdv-bg);
-	border-radius: 8px;
-	padding: 0.6rem 0.5rem;
+	border-radius: 10px;
+	padding: 0.65rem 0.5rem;
 	font: inherit;
 	font-size: 0.9rem;
+	font-weight: 600;
 	cursor: pointer;
+	transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .lion-rdv-devis-slot-btn:hover,
 .lion-rdv-devis-slot-btn:focus-visible {
 	border-color: var(--lion-rdv-primary);
 	color: var(--lion-rdv-primary);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+	transform: translateY(-1px);
 }
 
 .lion-rdv-devis-summary {
 	background: var(--lion-rdv-bg-soft);
+	border-left: 3px solid var(--lion-rdv-primary);
 	border-radius: var(--lion-rdv-radius);
 	padding: 0.9rem 1rem;
 	margin-bottom: 1.25rem;
@@ -200,12 +336,22 @@
 	border-radius: 8px;
 	font: inherit;
 	font-size: 0.95rem;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lion-rdv-devis-field input:hover,
+.lion-rdv-devis-field textarea:hover {
+	border-color: var(--lion-rdv-muted);
 }
 
 .lion-rdv-devis-field input:focus,
 .lion-rdv-devis-field textarea:focus {
-	outline: 2px solid var(--lion-rdv-primary);
-	outline-offset: 1px;
+	outline: none;
+	border-color: var(--lion-rdv-primary);
+	/* color-mix() est ignoré par les navigateurs qui ne le supportent pas :
+	   la déclaration juste au-dessus reste alors le seul filet visible. */
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lion-rdv-primary) 20%, transparent);
 }
 
 .lion-rdv-devis-honeypot {
@@ -222,38 +368,66 @@
 	color: #fff;
 	border: none;
 	border-radius: 8px;
-	padding: 0.75rem 1.5rem;
+	padding: 0.85rem 1.5rem;
 	font: inherit;
 	font-size: 1rem;
 	font-weight: 600;
 	cursor: pointer;
 	width: 100%;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.lion-rdv-devis-submit:hover {
+.lion-rdv-devis-submit:hover:not(:disabled) {
 	background: var(--lion-rdv-primary-dark);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+	transform: translateY(-1px);
+}
+
+.lion-rdv-devis-submit:active:not(:disabled) {
+	transform: translateY(0);
 }
 
 .lion-rdv-devis-submit:disabled {
 	opacity: 0.6;
 	cursor: not-allowed;
+	box-shadow: none;
 }
 
 .lion-rdv-devis-message {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
 	padding: 0.9rem 1rem;
 	border-radius: 8px;
+	border-left: 3px solid transparent;
 	margin-bottom: 1rem;
 	font-size: 0.9rem;
 }
 
+.lion-rdv-devis-message::before {
+	flex: none;
+	font-weight: 700;
+}
+
 .lion-rdv-devis-message.is-error {
 	background: #fdecea;
+	border-left-color: #c0272d;
 	color: #9d2126;
+}
+
+.lion-rdv-devis-message.is-error::before {
+	content: '⚠';
 }
 
 .lion-rdv-devis-message.is-success {
 	background: #eaf6ec;
+	border-left-color: #1a7f37;
 	color: #1a7f37;
+}
+
+.lion-rdv-devis-message.is-success::before {
+	content: '✓';
 }
 
 .lion-rdv-devis-confirmation {
@@ -262,11 +436,37 @@
 }
 
 .lion-rdv-devis-confirmation .lion-rdv-devis-icon {
-	font-size: 2.5rem;
-	margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	margin: 0 auto 1rem;
+	border-radius: 50%;
+	background: var(--lion-rdv-primary);
+	color: #fff;
+	font-size: 1.75rem;
+	animation: lion-rdv-devis-pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.lion-rdv-devis-confirmation p {
+	font-size: 1.05rem;
 }
 
 .lion-rdv-devis-loading {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
 	color: var(--lion-rdv-muted);
 	padding: 1rem 0;
+}
+
+.lion-rdv-devis-spinner {
+	flex: none;
+	width: 18px;
+	height: 18px;
+	border: 2px solid var(--lion-rdv-border);
+	border-top-color: var(--lion-rdv-primary);
+	border-radius: 50%;
+	animation: lion-rdv-devis-spin 0.7s linear infinite;
 }
