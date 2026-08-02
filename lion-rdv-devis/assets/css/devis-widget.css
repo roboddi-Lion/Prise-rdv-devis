@@ -1,0 +1,263 @@
+/**
+ * ==========================================================================
+ * PERSONNALISATION — à adapter à la charte graphique de Lion Rénovation
+ * ==========================================================================
+ * Changez uniquement les valeurs ci-dessous pour recolorer tout le widget :
+ * --lion-rdv-primary      : couleur d'accent (boutons, liens, sélection)
+ * --lion-rdv-primary-dark : même couleur, plus foncée (survol des boutons)
+ * Le reste (police, tailles) hérite automatiquement du thème du site.
+ *
+ * Ce sont les mêmes noms de variables que le plugin "Prise de RDV Dépannage
+ * & Entretien" : reportez les mêmes valeurs ici pour que les deux widgets
+ * restent visuellement identiques.
+ * ==========================================================================
+ */
+.lion-rdv-devis-widget {
+	--lion-rdv-primary: #c0272d;
+	--lion-rdv-primary-dark: #98181d;
+	--lion-rdv-text: inherit;
+	--lion-rdv-muted: #6b7280;
+	--lion-rdv-border: #e2e2e2;
+	--lion-rdv-bg: transparent;
+	--lion-rdv-bg-soft: rgba(0, 0, 0, 0.03);
+	--lion-rdv-radius: 8px;
+
+	max-width: 640px;
+	margin: 0 auto;
+	font-family: inherit;
+	font-size: 1rem;
+	line-height: 1.5;
+	color: var(--lion-rdv-text);
+	box-sizing: border-box;
+}
+
+.lion-rdv-devis-widget *,
+.lion-rdv-devis-widget *::before,
+.lion-rdv-devis-widget *::after {
+	box-sizing: inherit;
+}
+
+.lion-rdv-devis-widget h2,
+.lion-rdv-devis-widget h3 {
+	margin: 0 0 1rem;
+	font-size: 1.15em;
+	font-family: inherit;
+	font-weight: 600;
+	color: inherit;
+}
+
+.lion-rdv-devis-step {
+	/* Pas de fond ni de bordure par défaut : le widget se fond dans la mise
+	   en page du thème plutôt que de s'afficher comme une boîte à part.
+	   Ajoutez background/border ici si vous préférez un encart visible. */
+	padding: 0;
+}
+
+.lion-rdv-devis-service-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1rem;
+}
+
+@media (max-width: 480px) {
+	.lion-rdv-devis-service-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.lion-rdv-devis-service-card {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: var(--lion-rdv-bg-soft);
+	border: 2px solid var(--lion-rdv-border);
+	border-radius: var(--lion-rdv-radius);
+	padding: 1.25rem;
+	cursor: pointer;
+	font: inherit;
+	color: inherit;
+	transition: border-color 0.15s ease, transform 0.05s ease;
+}
+
+.lion-rdv-devis-service-card:hover,
+.lion-rdv-devis-service-card:focus-visible {
+	border-color: var(--lion-rdv-primary);
+}
+
+.lion-rdv-devis-service-card strong {
+	display: block;
+	font-size: 1.05rem;
+	margin-bottom: 0.25rem;
+}
+
+.lion-rdv-devis-service-card span {
+	color: var(--lion-rdv-muted);
+	font-size: 0.9rem;
+}
+
+.lion-rdv-devis-back {
+	background: none;
+	border: none;
+	color: var(--lion-rdv-primary);
+	font: inherit;
+	cursor: pointer;
+	padding: 0;
+	margin-bottom: 1rem;
+}
+
+.lion-rdv-devis-days {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.lion-rdv-devis-day-btn {
+	border: 1px solid var(--lion-rdv-border);
+	background: var(--lion-rdv-bg-soft);
+	border-radius: 8px;
+	padding: 0.5rem 0.85rem;
+	font: inherit;
+	font-size: 0.9rem;
+	cursor: pointer;
+	text-transform: capitalize;
+}
+
+.lion-rdv-devis-day-btn.is-active,
+.lion-rdv-devis-day-btn:hover {
+	background: var(--lion-rdv-primary);
+	border-color: var(--lion-rdv-primary);
+	color: #fff;
+}
+
+.lion-rdv-devis-slots {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 0.6rem;
+}
+
+.lion-rdv-devis-slot-btn {
+	border: 1px solid var(--lion-rdv-border);
+	background: var(--lion-rdv-bg);
+	border-radius: 8px;
+	padding: 0.6rem 0.5rem;
+	font: inherit;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.lion-rdv-devis-slot-btn:hover,
+.lion-rdv-devis-slot-btn:focus-visible {
+	border-color: var(--lion-rdv-primary);
+	color: var(--lion-rdv-primary);
+}
+
+.lion-rdv-devis-summary {
+	background: var(--lion-rdv-bg-soft);
+	border-radius: var(--lion-rdv-radius);
+	padding: 0.9rem 1rem;
+	margin-bottom: 1.25rem;
+	font-size: 0.95rem;
+}
+
+.lion-rdv-devis-form-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+}
+
+.lion-rdv-devis-form-grid .lion-rdv-devis-full {
+	grid-column: 1 / -1;
+}
+
+@media (max-width: 480px) {
+	.lion-rdv-devis-form-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.lion-rdv-devis-field label {
+	display: block;
+	font-size: 0.85rem;
+	margin-bottom: 0.3rem;
+	color: var(--lion-rdv-muted);
+}
+
+.lion-rdv-devis-field input,
+.lion-rdv-devis-field textarea {
+	width: 100%;
+	padding: 0.6rem 0.7rem;
+	border: 1px solid var(--lion-rdv-border);
+	border-radius: 8px;
+	font: inherit;
+	font-size: 0.95rem;
+}
+
+.lion-rdv-devis-field input:focus,
+.lion-rdv-devis-field textarea:focus {
+	outline: 2px solid var(--lion-rdv-primary);
+	outline-offset: 1px;
+}
+
+.lion-rdv-devis-honeypot {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.lion-rdv-devis-submit {
+	margin-top: 1.25rem;
+	background: var(--lion-rdv-primary);
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 0.75rem 1.5rem;
+	font: inherit;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	width: 100%;
+}
+
+.lion-rdv-devis-submit:hover {
+	background: var(--lion-rdv-primary-dark);
+}
+
+.lion-rdv-devis-submit:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.lion-rdv-devis-message {
+	padding: 0.9rem 1rem;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+	font-size: 0.9rem;
+}
+
+.lion-rdv-devis-message.is-error {
+	background: #fdecea;
+	color: #9d2126;
+}
+
+.lion-rdv-devis-message.is-success {
+	background: #eaf6ec;
+	color: #1a7f37;
+}
+
+.lion-rdv-devis-confirmation {
+	text-align: center;
+	padding: 2rem 1rem;
+}
+
+.lion-rdv-devis-confirmation .lion-rdv-devis-icon {
+	font-size: 2.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.lion-rdv-devis-loading {
+	color: var(--lion-rdv-muted);
+	padding: 1rem 0;
+}
