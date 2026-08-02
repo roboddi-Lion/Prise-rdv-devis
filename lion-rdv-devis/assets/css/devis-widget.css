@@ -55,7 +55,7 @@
 
 .lion-rdv-devis-service-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 	gap: 1rem;
 }
 
@@ -68,6 +68,12 @@
 .lion-rdv-devis-service-card {
 	display: block;
 	width: 100%;
+	/* Sans ça, un item de grille CSS ne peut jamais devenir plus étroit que
+	   le texte le plus long qu'il contient (min-width intrinsèque = "auto"
+	   par défaut sur un enfant de grille) : avec un libellé long, le bouton
+	   déborde de sa colonne au lieu de laisser le texte passer à la ligne. */
+	min-width: 0;
+	box-sizing: border-box;
 	text-align: left;
 	background: var(--lion-rdv-bg-soft);
 	border: 2px solid var(--lion-rdv-border);
@@ -88,11 +94,14 @@
 	display: block;
 	font-size: 1.05rem;
 	margin-bottom: 0.25rem;
+	overflow-wrap: break-word;
 }
 
 .lion-rdv-devis-service-card span {
+	display: block;
 	color: var(--lion-rdv-muted);
 	font-size: 0.9rem;
+	overflow-wrap: break-word;
 }
 
 .lion-rdv-devis-back {
