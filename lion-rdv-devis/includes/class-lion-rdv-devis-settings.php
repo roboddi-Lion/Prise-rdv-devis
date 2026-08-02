@@ -417,7 +417,14 @@ class Lion_RDV_Devis_Settings {
 			)
 		);
 
-		wp_safe_redirect( $client->get_authorize_url( $state ) );
+		// wp_safe_redirect() refuserait cette redirection : par défaut, elle
+		// n'autorise que les URL du site lui-même et retomberait donc
+		// silencieusement sur l'admin WordPress au lieu d'envoyer l'utilisateur
+		// vers l'écran de consentement Google. L'URL cible est ici entièrement
+		// construite côté serveur (endpoint Google fixe + client_id + state
+		// signé), jamais à partir d'une entrée utilisateur : wp_redirect() est
+		// donc le bon choix.
+		wp_redirect( $client->get_authorize_url( $state ) );
 		exit;
 	}
 
