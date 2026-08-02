@@ -123,16 +123,9 @@ class Lion_RDV_Devis_Settings {
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain' ),
 			),
-			'chauffage'              => array(
-				'label'            => __( 'Chauffage', 'lion-rdv-devis' ),
-				'description'      => __( 'Installation ou remplacement d\'un système de chauffage', 'lion-rdv-devis' ),
-				'duration_minutes' => 60,
-				'lead_time_hours'  => 24,
-				'persons'          => array( 'emmanuel' ),
-			),
-			'chaudiere'              => array(
-				'label'            => __( 'Chaudière', 'lion-rdv-devis' ),
-				'description'      => __( 'Installation ou remplacement de chaudière', 'lion-rdv-devis' ),
+			'chauffage_climatisation' => array(
+				'label'            => __( 'Chauffage / Climatisation', 'lion-rdv-devis' ),
+				'description'      => __( 'Chauffage, chaudière, climatisation ou pompe à chaleur (PAC)', 'lion-rdv-devis' ),
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'emmanuel' ),
@@ -140,20 +133,6 @@ class Lion_RDV_Devis_Settings {
 			'salle_de_bain'          => array(
 				'label'            => __( 'Salle de bain', 'lion-rdv-devis' ),
 				'description'      => __( 'Conception et rénovation de salle de bain', 'lion-rdv-devis' ),
-				'duration_minutes' => 60,
-				'lead_time_hours'  => 24,
-				'persons'          => array( 'romain', 'emmanuel' ),
-			),
-			'climatisation'          => array(
-				'label'            => __( 'Climatisation', 'lion-rdv-devis' ),
-				'description'      => __( 'Installation de climatisation', 'lion-rdv-devis' ),
-				'duration_minutes' => 60,
-				'lead_time_hours'  => 24,
-				'persons'          => array( 'romain', 'emmanuel' ),
-			),
-			'pac'                    => array(
-				'label'            => __( 'Pompe à chaleur (PAC)', 'lion-rdv-devis' ),
-				'description'      => __( 'Installation de pompe à chaleur', 'lion-rdv-devis' ),
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain', 'emmanuel' ),

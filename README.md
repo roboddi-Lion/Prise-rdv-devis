@@ -14,8 +14,8 @@ technique / devis, jamais le dépannage.
 | Type de projet choisi par le client | Agenda(s) consulté(s) |
 |---|---|
 | Rénovation énergétique, Cuisine, Rénovation complète, Locaux professionnels | Romain uniquement |
-| Chauffage, Chaudière | Emmanuel uniquement |
-| Salle de bain, Climatisation, Pompe à chaleur (PAC) | Les deux — premier créneau libre entre les deux agendas |
+| Chauffage / Climatisation (chauffage, chaudière, climatisation, PAC) | Emmanuel uniquement |
+| Salle de bain | Les deux — premier créneau libre entre les deux agendas |
 
 Quand les deux agendas sont éligibles, le plugin propose le premier créneau
 où **au moins l'un des deux** est libre, et assigne le rendez-vous à celui

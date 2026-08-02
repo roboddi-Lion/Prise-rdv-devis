@@ -180,8 +180,8 @@ class Lion_RDV_Devis_Availability {
 	 * personnes éligibles pour ce service n'a aucun événement qui chevauche
 	 * ce créneau dans son agenda Google Calendar ; cette personne est
 	 * retournée pour lui assigner le rendez-vous. Si les deux personnes sont
-	 * éligibles (ex. salle de bain, climatisation, PAC), le client ne voit
-	 * jamais laquelle sera effectivement présente.
+	 * éligibles (ex. salle de bain), le client ne voit jamais laquelle sera
+	 * effectivement présente.
 	 *
 	 * @return array{available:bool,person:?string}
 	 */
