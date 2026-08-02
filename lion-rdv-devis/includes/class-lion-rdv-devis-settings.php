@@ -250,10 +250,11 @@ class Lion_RDV_Devis_Settings {
 		if ( array_key_exists( 'access_token', $tokens ) ) {
 			$current['access_token'] = self::encrypt_secret( $tokens['access_token'] );
 		}
-		if ( array_key_exists( 'refresh_token', $tokens ) && '' !== $tokens['refresh_token'] ) {
-			// Google ne renvoie un refresh_token qu'au premier consentement
-			// (ou si prompt=consent est forcé) : on ne l'écrase donc que
-			// lorsqu'on en reçoit effectivement un nouveau.
+		if ( array_key_exists( 'refresh_token', $tokens ) ) {
+			// La clé n'est incluse que lors d'un échange de code initial (connexion)
+			// ou d'une déconnexion explicite (clear_person_tokens) : le simple
+			// rafraîchissement d'un access_token n'inclut pas cette clé et ne
+			// touche donc jamais au refresh_token existant.
 			$current['refresh_token'] = self::encrypt_secret( $tokens['refresh_token'] );
 		}
 		if ( array_key_exists( 'token_expires_at', $tokens ) ) {
@@ -367,10 +368,50 @@ class Lion_RDV_Devis_Settings {
 			);
 		}
 
-		// Les jetons OAuth ne transitent jamais par ce formulaire : ils sont
-		// gérés exclusivement par le flux de connexion/déconnexion Google
-		// (handle_oauth_*), on les recopie donc tels quels.
-		$clean['persons'] = is_array( $existing['persons'] ?? null ) ? $existing['persons'] : $defaults['persons'];
+		// Les jetons OAuth ne transitent jamais par CE FORMULAIRE (aucun champ
+		// "persons" n'y est rendu) : dans ce cas $input['persons'] est absent et
+		// on préserve ce qui est déjà enregistré. Mais cette même fonction est
+		// aussi invoquée quand save_person_tokens() appelle update_option() —
+		// WordPress fait passer TOUTE valeur par sanitize_option() avant de
+		// l'écrire, donc $input['persons'] contient alors les jetons qu'on est
+		// justement en train d'essayer d'enregistrer. Les ignorer au profit
+		// d'un nouveau get_option() ici serait relire l'ANCIENNE valeur en base
+		// (update_option() n'a pas encore écrit la nouvelle au moment où ce
+		// filtre s'exécute) et effacerait silencieusement le jeton qu'on vient
+		// de recevoir de Google : on doit donc bien repartir de $input quand il
+		// est présent.
+		$existing_persons = is_array( $existing['persons'] ?? null ) ? $existing['persons'] : array();
+		$clean['persons']  = $this->sanitize_persons( $input['persons'] ?? null, $existing_persons );
+
+		return $clean;
+	}
+
+	/**
+	 * @param mixed $input_persons    $input['persons'] tel que reçu par sanitize_settings() (peut être absent).
+	 * @param array $existing_persons Valeur actuellement enregistrée en base, pour combler ce que $input_persons ne fournit pas.
+	 */
+	private function sanitize_persons( $input_persons, array $existing_persons ) {
+		$clean = array();
+
+		foreach ( array_keys( self::get_persons_labels() ) as $person_key ) {
+			$current = is_array( $existing_persons[ $person_key ] ?? null ) ? $existing_persons[ $person_key ] : array();
+			$incoming = is_array( $input_persons[ $person_key ] ?? null ) ? $input_persons[ $person_key ] : null;
+
+			if ( null === $incoming ) {
+				$clean[ $person_key ] = $current;
+				continue;
+			}
+
+			// access_token/refresh_token sont déjà chiffrés à ce stade (voir
+			// save_person_tokens()) : de simples chaînes opaques, castées mais
+			// jamais ré-échappées comme du texte affichable.
+			$clean[ $person_key ] = array(
+				'access_token'     => isset( $incoming['access_token'] ) ? (string) $incoming['access_token'] : ( $current['access_token'] ?? '' ),
+				'refresh_token'    => isset( $incoming['refresh_token'] ) ? (string) $incoming['refresh_token'] : ( $current['refresh_token'] ?? '' ),
+				'token_expires_at' => isset( $incoming['token_expires_at'] ) ? (int) $incoming['token_expires_at'] : (int) ( $current['token_expires_at'] ?? 0 ),
+				'connected_email'  => isset( $incoming['connected_email'] ) ? sanitize_email( $incoming['connected_email'] ) : ( $current['connected_email'] ?? '' ),
+			);
+		}
 
 		return $clean;
 	}
