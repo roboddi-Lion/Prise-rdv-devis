@@ -41,6 +41,7 @@ class Lion_RDV_Devis_Settings {
 		add_action( 'admin_post_lion_rdv_devis_oauth_connect', array( $this, 'handle_oauth_connect' ) );
 		add_action( 'admin_post_lion_rdv_devis_oauth_callback', array( $this, 'handle_oauth_callback' ) );
 		add_action( 'admin_post_lion_rdv_devis_oauth_disconnect', array( $this, 'handle_oauth_disconnect' ) );
+		add_action( 'admin_post_lion_rdv_devis_test_calendar', array( $this, 'handle_test_calendar' ) );
 	}
 
 	public static function default_settings() {
@@ -508,6 +509,33 @@ class Lion_RDV_Devis_Settings {
 		}
 
 		wp_safe_redirect( add_query_arg( array( 'page' => 'lion-rdv-devis', 'lion_rdv_devis_oauth_disconnected' => $person ), admin_url( 'options-general.php' ) ) );
+		exit;
+	}
+
+	/**
+	 * Bouton "Vérifier l'agenda" : interroge le FreeBusy réel de la personne
+	 * sur les 14 prochains jours et affiche le résultat brut sur la page de
+	 * réglages, pour comparer avec le contenu effectif de son agenda Google
+	 * et localiser la cause si un créneau occupé reste proposé dans le
+	 * widget (mauvais compte connecté, agenda secondaire non couvert,
+	 * événement marqué "Disponible" plutôt que "Occupé", etc.).
+	 */
+	public function handle_test_calendar() {
+		if ( ! current_user_can( 'manage_options' ) || ! check_admin_referer( 'lion_rdv_devis_test_calendar' ) ) {
+			wp_die( esc_html__( 'Action non autorisée.', 'lion-rdv-devis' ) );
+		}
+
+		$person = isset( $_GET['person'] ) ? sanitize_key( wp_unslash( $_GET['person'] ) ) : '';
+		if ( ! array_key_exists( $person, self::get_persons_labels() ) ) {
+			wp_die( esc_html__( 'Agenda inconnu.', 'lion-rdv-devis' ) );
+		}
+
+		$client = new Lion_RDV_Devis_Google_Client();
+		$result = $client->test_busy_periods( $person );
+
+		set_transient( 'lion_rdv_devis_test_calendar_' . $person, $result, MINUTE_IN_SECONDS * 5 );
+
+		wp_safe_redirect( add_query_arg( array( 'page' => 'lion-rdv-devis', 'lion_rdv_devis_calendar_tested' => $person ), admin_url( 'options-general.php' ) ) );
 		exit;
 	}
 

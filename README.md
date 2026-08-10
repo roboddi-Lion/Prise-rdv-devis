@@ -31,14 +31,23 @@ entièrement modifiable dans **Réglages > Prise de RDV Devis Lion**.
 2. Activez l'extension **« Lion Rénovation - Prise de RDV Devis »**.
 3. Créez un projet Google Cloud et connectez les deux agendas (voir
    ci-dessous).
-4. Allez dans **Réglages > Prise de RDV Devis Lion** et vérifiez :
+4. Allez dans **Réglages > Général > Fuseau horaire** et vérifiez qu'il est
+   réglé sur **« Paris »** (pas un décalage UTC fixe type « UTC+1 » ou
+   « UTC+2 », qui ne suit pas le changement d'heure été/hiver). Les
+   horaires d'ouverture et le calcul des créneaux libres se basent sur ce
+   réglage : s'il est resté sur UTC, les créneaux affichés seront décalés
+   d'1h ou 2h par rapport à l'heure réelle, et les événements déjà présents
+   dans les agendas Google Calendar ne bloqueront pas les bons créneaux. La
+   page **Réglages > Prise de RDV Devis Lion** affiche un avertissement
+   tant que ce réglage reste sur UTC.
+5. Allez dans **Réglages > Prise de RDV Devis Lion** et vérifiez :
+   - le tableau **« Types de projet proposés »** : les lignes préconfigurées
+     selon le tableau de routage ci-dessus
    - les **horaires d'ouverture** (préremplis : lun-jeu 8h-12h/14h-18h,
      ven 8h-12h/14h-17h, fermé sam/dim)
-   - le tableau **« Types de projet proposés »** : neuf lignes préconfigurées
-     selon le tableau de routage ci-dessus
    - l'**email de notification interne** (par défaut : l'email admin du
      site)
-5. Ajoutez le shortcode `[lion_rdv_devis]` sur la page « Prise de rendez-vous
+6. Ajoutez le shortcode `[lion_rdv_devis]` sur la page « Prise de rendez-vous
    devis » de votre site.
 
 ## Connexion Google Calendar (OAuth2 individuel)
@@ -92,6 +101,14 @@ Une fois connecté, chaque ligne affiche l'adresse Gmail/Workspace du compte
 autorisé. Le bouton **« Déconnecter »** révoque la connexion stockée côté
 WordPress (à utiliser par exemple si Romain ou Emmanuel change de compte
 Google).
+
+Le bouton **« Vérifier l'agenda »** interroge Google Calendar en direct et
+affiche la liste des créneaux occupés détectés sur les 14 prochains jours
+pour cette personne. Comparez cette liste avec le contenu réel de son
+agenda Google : si un rendez-vous existant n'y apparaît pas, la cause est
+côté Google (mauvais compte connecté, événement marqué « Disponible » au
+lieu de « Occupé », ou agenda secondaire non couvert — seul l'agenda
+principal du compte connecté est consulté) plutôt que côté plugin.
 
 ### Stockage des jetons
 

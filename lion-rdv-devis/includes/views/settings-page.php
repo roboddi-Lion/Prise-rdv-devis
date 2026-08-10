@@ -48,6 +48,63 @@ $day_labels = array(
 		</div>
 	<?php endif; ?>
 
+	<?php
+	$wp_timezone_string = wp_timezone_string();
+	if ( in_array( $wp_timezone_string, array( 'UTC', '+00:00', '+0:00' ), true ) ) :
+		?>
+		<div class="notice notice-warning" style="padding:10px;">
+			<p>
+				<strong><?php esc_html_e( 'Fuseau horaire WordPress réglé sur UTC.', 'lion-rdv-devis' ); ?></strong>
+				<?php esc_html_e( 'Les horaires d\'ouverture et les créneaux calculés par ce plugin utilisent le fuseau horaire de Réglages > Général > Fuseau horaire. S\'il reste sur UTC (ou un décalage UTC fixe) au lieu de "Paris", les créneaux affichés seront décalés de 1h ou 2h par rapport à l\'heure réelle, et les événements déjà présents dans les agendas Google ne bloqueront pas les bons créneaux.', 'lion-rdv-devis' ); ?>
+				<?php esc_html_e( 'Choisissez "Paris" dans la liste (pas un décalage UTC fixe) pour que le passage heure d\'été/hiver soit géré automatiquement.', 'lion-rdv-devis' ); ?>
+			</p>
+		</div>
+	<?php endif; ?>
+
+	<?php
+	$tested_person = isset( $_GET['lion_rdv_devis_calendar_tested'] ) ? sanitize_key( wp_unslash( $_GET['lion_rdv_devis_calendar_tested'] ) ) : '';
+	foreach ( $persons_labels as $person_key => $person_label ) :
+		$test_result = get_transient( 'lion_rdv_devis_test_calendar_' . $person_key );
+		if ( $person_key === $tested_person && is_array( $test_result ) ) :
+			delete_transient( 'lion_rdv_devis_test_calendar_' . $person_key );
+			?>
+			<div class="notice <?php echo $test_result['success'] ? 'notice-success' : 'notice-error'; ?>" style="padding:10px;">
+				<?php if ( $test_result['success'] ) : ?>
+					<p>
+						<strong>
+							<?php
+							printf(
+								/* translators: 1: person label, 2: number of days checked */
+								esc_html__( 'Créneaux occupés détectés pour %1$s sur les %2$d prochains jours (heure du site, %3$s) :', 'lion-rdv-devis' ),
+								esc_html( $person_label ),
+								(int) $test_result['checked_days'],
+								esc_html( wp_timezone_string() )
+							);
+							?>
+						</strong>
+					</p>
+					<?php if ( empty( $test_result['periods'] ) ) : ?>
+						<p><?php esc_html_e( 'Aucun. Si vous vous attendiez à en voir un, vérifiez que l\'événement est bien marqué "Occupé" dans Google Calendar, sur le compte connecté ci-dessous, dans son agenda principal.', 'lion-rdv-devis' ); ?></p>
+					<?php else : ?>
+						<ul style="list-style:disc;margin-left:20px;">
+							<?php foreach ( $test_result['periods'] as $period ) : ?>
+								<li>
+									<?php
+									echo esc_html(
+										$period['start']->format( 'd/m/Y H:i' ) . ' → ' . $period['end']->format( 'd/m/Y H:i' )
+									);
+									?>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				<?php else : ?>
+					<p><strong><?php esc_html_e( 'Échec de la vérification :', 'lion-rdv-devis' ); ?></strong> <?php echo esc_html( $test_result['error'] ); ?></p>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+	<?php endforeach; ?>
+
 	<h2><?php esc_html_e( 'Connexion Google Calendar', 'lion-rdv-devis' ); ?></h2>
 	<div class="notice notice-info inline" style="padding:10px;margin-left:0;">
 		<p><strong><?php esc_html_e( 'Avant de connecter les agendas, créez un projet Google Cloud :', 'lion-rdv-devis' ); ?></strong></p>
@@ -188,6 +245,9 @@ $day_labels = array(
 				</td>
 				<td>
 					<?php if ( $connected ) : ?>
+						<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=lion_rdv_devis_test_calendar&person=' . $person_key ), 'lion_rdv_devis_test_calendar' ) ); ?>">
+							<?php esc_html_e( 'Vérifier l\'agenda', 'lion-rdv-devis' ); ?>
+						</a>
 						<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=lion_rdv_devis_oauth_disconnect&person=' . $person_key ), 'lion_rdv_devis_oauth_disconnect' ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Déconnecter cet agenda ?', 'lion-rdv-devis' ) ); ?>');">
 							<?php esc_html_e( 'Déconnecter', 'lion-rdv-devis' ); ?>
 						</a>

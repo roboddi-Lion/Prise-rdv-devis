@@ -242,7 +242,22 @@ class Lion_RDV_Devis_Google_Client {
 			);
 		}
 
-		$raw   = $response['data']['calendars']['primary'] ?? array();
+		// Pas de "?? array()" ici : une réponse qui ne contient pas la clé
+		// attendue doit être traitée comme une erreur bloquante, jamais comme
+		// "aucun événement trouvé, créneau libre" — pour un outil de planning,
+		// une donnée absente ou dans un format inattendu doit faire échouer la
+		// disponibilité plutôt que la déclarer silencieusement libre (le
+		// risque inverse est un double rendez-vous chez le client).
+		if ( ! isset( $response['data']['calendars']['primary'] ) || ! is_array( $response['data']['calendars']['primary'] ) ) {
+			return array(
+				'success' => false,
+				'periods' => array(),
+				/* translators: %s: person label */
+				'error'   => sprintf( __( 'Réponse Google Calendar inattendue pour l\'agenda de %s.', 'lion-rdv-devis' ), self::get_persons_labels()[ $person ] ?? $person ),
+			);
+		}
+
+		$raw   = $response['data']['calendars']['primary'];
 		$busy  = isset( $raw['busy'] ) && is_array( $raw['busy'] ) ? $raw['busy'] : array();
 		$error = isset( $raw['errors'] ) && ! empty( $raw['errors'] );
 
@@ -274,6 +289,29 @@ class Lion_RDV_Devis_Google_Client {
 			'success' => true,
 			'periods' => $periods,
 			'error'   => null,
+		);
+	}
+
+	/**
+	 * Utilisé par le bouton "Vérifier l'agenda" des réglages : interroge le
+	 * FreeBusy des prochains jours et retourne la liste brute, pour comparer
+	 * visuellement avec le contenu réel de l'agenda Google de la personne et
+	 * localiser un éventuel décalage (mauvais compte connecté, événements
+	 * marqués "Disponible", agenda secondaire non couvert, etc.).
+	 *
+	 * @return array{success:bool,periods:array,error:?string,checked_days:int}
+	 */
+	public function test_busy_periods( $person, $days = 14 ) {
+		$tz     = wp_timezone();
+		$start  = ( new DateTimeImmutable( 'now', $tz ) )->setTime( 0, 0, 0 );
+		$end    = $start->modify( "+{$days} days" );
+		$result = $this->get_busy_periods( $person, $start, $end );
+
+		return array(
+			'success'      => $result['success'],
+			'periods'      => $result['periods'],
+			'error'        => $result['error'],
+			'checked_days' => $days,
 		);
 	}
 
