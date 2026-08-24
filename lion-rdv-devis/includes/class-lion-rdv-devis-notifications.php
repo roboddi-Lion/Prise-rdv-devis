@@ -63,7 +63,10 @@ class Lion_RDV_Devis_Notifications {
 		$lines = array(
 			sprintf( '%s : %s', __( 'Type de projet', 'lion-rdv-devis' ), $service_label ),
 			sprintf( '%s : %s', __( 'Statut', 'lion-rdv-devis' ), $status_label ),
-			sprintf( '%s : %s', __( 'Date', 'lion-rdv-devis' ), date_i18n( 'l j F Y', $booking['start']->getTimestamp() ) ),
+			// wp_date() (pas date_i18n()) : voir Lion_RDV_Devis_Availability::get_available_slots()
+			// pour le détail du bug évité (date_i18n() attend un timestamp déjà
+			// décalé, DateTimeImmutable::getTimestamp() renvoie de l'UTC brut).
+			sprintf( '%s : %s', __( 'Date', 'lion-rdv-devis' ), wp_date( 'l j F Y', $booking['start']->getTimestamp(), $booking['start']->getTimezone() ) ),
 			sprintf( '%s : %s - %s', __( 'Heure', 'lion-rdv-devis' ), $booking['start']->format( 'H:i' ), $booking['end']->format( 'H:i' ) ),
 			sprintf( '%s : %s %s', __( 'Client', 'lion-rdv-devis' ), $booking['first_name'], $booking['last_name'] ),
 			sprintf( '%s : %s', __( 'Téléphone', 'lion-rdv-devis' ), $booking['phone'] ),

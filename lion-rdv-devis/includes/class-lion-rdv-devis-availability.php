@@ -115,7 +115,13 @@ class Lion_RDV_Devis_Availability {
 				if ( ! empty( $day_slots ) ) {
 					$days[] = array(
 						'date'  => $cursor->format( 'Y-m-d' ),
-						'label' => date_i18n( 'l j F', $cursor->getTimestamp() ),
+						// wp_date() (pas date_i18n()) : date_i18n() attend un timestamp
+						// auquel le décalage horaire du site a déjà été ajouté, alors que
+						// DateTimeImmutable::getTimestamp() renvoie un timestamp UTC brut.
+						// Résultat avec date_i18n() : le libellé affiché tombait un jour
+						// avant la vraie date (ex. un vrai lundi affiché "dimanche"),
+						// alors que le créneau réservé restait sur la bonne date.
+						'label' => wp_date( 'l j F', $cursor->getTimestamp(), $tz ),
 						'slots' => $day_slots,
 					);
 				}
