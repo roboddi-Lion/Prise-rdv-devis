@@ -73,10 +73,23 @@
 		return wrap;
 	}
 
+	// Reprend la petite barre à 4 couleurs (ambre/terracotta/bleu/marine) que
+	// lion-renovation.fr affiche devant ses titres de section — une touche
+	// de marque directement empruntée au site plutôt qu'un motif générique.
+	function renderBrandBar() {
+		return el( 'div', { class: 'lion-rdv-devis-brand-bar' }, [
+			el( 'span' ),
+			el( 'span' ),
+			el( 'span' ),
+			el( 'span' ),
+		] );
+	}
+
 	// Toutes les étapes (sauf l'écran final) partagent la même structure de
-	// base : un conteneur avec l'indicateur de progression en premier enfant.
+	// base : la barre de marque, puis l'indicateur de progression.
 	function stepShell( activeKey ) {
 		var stepEl = el( 'div', { class: 'lion-rdv-devis-step' } );
+		stepEl.appendChild( renderBrandBar() );
 		stepEl.appendChild( renderProgress( activeKey ) );
 		return stepEl;
 	}

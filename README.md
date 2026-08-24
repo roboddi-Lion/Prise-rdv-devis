@@ -153,13 +153,23 @@ adresse IP.
 
 ## Personnalisation visuelle
 
+Le style est calé sur la charte actuelle de **lion-renovation.fr** (bleu
+`#0d4995`, polices Outfit/Montserrat, rayon 8px, ombres teintées bleu,
+petite barre de marque ambre/terracotta/bleu/marine), plutôt que sur des
+couleurs génériques. Le widget est présenté comme un encart blanc arrondi
+avec ombre, sur le même modèle que le formulaire de contact existant du
+site (`.request-form`), et les messages de succès/erreur reprennent les
+teintes déjà utilisées ailleurs sur le site (bleu pour la confirmation,
+terracotta pour l'alerte).
+
 Le CSS réutilise **exactement les mêmes noms de variables** que le plugin
 « Prise de RDV Dépannage & Entretien » (`--lion-rdv-primary`,
 `--lion-rdv-primary-dark`, `--lion-rdv-text`, `--lion-rdv-muted`,
 `--lion-rdv-border`, `--lion-rdv-bg`, `--lion-rdv-bg-soft`,
 `--lion-rdv-radius`), définies en haut de `assets/css/devis-widget.css` :
-reportez les mêmes valeurs dans les deux fichiers CSS pour que les deux
-widgets restent visuellement identiques.
+si la charte du site venait à changer, reportez les nouvelles valeurs de
+`:root` dans ce fichier (et dans celui du plugin dépannage, pour que les
+deux widgets restent visuellement identiques).
 
 ## Alternative : compte de service avec délégation à l'échelle du domaine
 
