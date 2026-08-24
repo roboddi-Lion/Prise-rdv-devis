@@ -123,6 +123,15 @@ class Lion_RDV_Devis_Rest_Controller {
 
 		$clean['message'] = isset( $body['message'] ) ? sanitize_textarea_field( $body['message'] ) : '';
 
+		$extra_raw    = is_array( $body['extra_answers'] ?? null ) ? $body['extra_answers'] : array();
+		$extra_result = $service_type
+			? $this->sanitize_extra_answers( $service_type, $extra_raw )
+			: array(
+				'errors'  => array(),
+				'answers' => array(),
+			);
+		$errors       = array_merge( $errors, $extra_result['errors'] );
+
 		$tz    = wp_timezone();
 		$start = null;
 		$end   = null;
@@ -206,6 +215,7 @@ class Lion_RDV_Devis_Rest_Controller {
 					'start'           => $start,
 					'end'             => $end,
 					'assigned_person' => $still_free['person'],
+					'extra_answers'   => $extra_result['answers'],
 				)
 			);
 
@@ -226,6 +236,7 @@ class Lion_RDV_Devis_Rest_Controller {
 					'postal_code'       => $clean['postal_code'],
 					'city'              => $clean['city'],
 					'message'           => $clean['message'],
+					'extra_answers'     => ! empty( $extra_result['answers'] ) ? wp_json_encode( $extra_result['answers'] ) : null,
 					'status'            => $google_result['success'] ? 'confirmed' : 'failed',
 					'assigned_person'   => $still_free['person'],
 					'google_event_id'   => $google_result['event_id'],
@@ -257,6 +268,54 @@ class Lion_RDV_Devis_Rest_Controller {
 		} finally {
 			$this->release_slot_lock( $service_type, $start, $end );
 		}
+	}
+
+	/**
+	 * Valide et met en forme les réponses aux questions "entonnoir" du type
+	 * de projet choisi (voir Lion_RDV_Devis_Settings::get_questions_for_service()).
+	 * Une valeur select/radio hors liste est ignorée plutôt que rejetée —
+	 * seul un champ marqué obligatoire peut faire échouer la réservation.
+	 *
+	 * @return array{errors:string[],answers:array<string,string>} answers est
+	 *         indexé par le LIBELLÉ de la question (pas sa clé technique),
+	 *         prêt à être affiché tel quel dans l'email interne, la
+	 *         description de l'événement Google et la page des réservations.
+	 */
+	private function sanitize_extra_answers( $service_type, array $raw ) {
+		$questions = Lion_RDV_Devis_Settings::get_questions_for_service( $service_type );
+		$errors    = array();
+		$answers   = array();
+
+		foreach ( $questions as $question ) {
+			$value = $raw[ $question['key'] ] ?? '';
+			$value = is_scalar( $value ) ? (string) $value : '';
+
+			if ( in_array( $question['type'], array( 'select', 'radio' ), true ) ) {
+				$option_labels = array();
+				foreach ( $question['options'] ?? array() as $option ) {
+					$option_labels[ $option['value'] ] = $option['label'];
+				}
+				$display = isset( $option_labels[ $value ] ) ? $option_labels[ $value ] : '';
+			} elseif ( 'textarea' === $question['type'] ) {
+				$display = sanitize_textarea_field( $value );
+			} else {
+				$display = sanitize_text_field( $value );
+			}
+
+			if ( ! empty( $question['required'] ) && '' === $display ) {
+				/* translators: %s: question label */
+				$errors[] = sprintf( __( 'Le champ « %s » est requis.', 'lion-rdv-devis' ), $question['label'] );
+			}
+
+			if ( '' !== $display ) {
+				$answers[ $question['label'] ] = $display;
+			}
+		}
+
+		return array(
+			'errors'  => $errors,
+			'answers' => $answers,
+		);
 	}
 
 	private function acquire_slot_lock( $service_type, DateTimeImmutable $start, DateTimeImmutable $end ) {

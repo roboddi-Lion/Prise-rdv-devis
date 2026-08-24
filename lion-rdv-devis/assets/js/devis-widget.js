@@ -12,6 +12,7 @@
 	var state = {
 		step: 'service',
 		service: null,
+		serviceQuestions: [],
 		days: [],
 		activeDayIndex: 0,
 		selectedSlot: null,
@@ -136,8 +137,13 @@
 		root.appendChild( stepEl );
 	}
 
-	function selectService( service ) {
-		state.service = service;
+	function selectService( serviceKey ) {
+		var found = ( lionRdvDevisSettings.services || [] ).filter( function ( s ) {
+			return s.key === serviceKey;
+		} )[ 0 ];
+
+		state.service = serviceKey;
+		state.serviceQuestions = found ? ( found.questions || [] ) : [];
 		state.step = 'slots';
 		state.days = [];
 		render();
@@ -268,6 +274,75 @@
 		return { wrap: wrap, input: input };
 	}
 
+	// Rend une question "entonnoir" (voir Lion_RDV_Devis_Settings::default_services())
+	// selon son type, et retourne un accesseur getValue() uniforme quel que
+	// soit l'élément de formulaire réellement utilisé (select, radios en
+	// pilules, ou champ texte classique).
+	function renderQuestionField( q ) {
+		var labelText = q.label + ( q.required ? ' *' : '' );
+		var fieldId = 'lion-rdv-devis-q-' + q.key;
+		var fieldClass = 'lion-rdv-devis-field' + ( q.full ? ' lion-rdv-devis-full' : '' );
+
+		if ( 'select' === q.type ) {
+			var wrap = el( 'div', { class: fieldClass } );
+			wrap.appendChild( el( 'label', { for: fieldId, text: labelText } ) );
+			var selectAttrs = { id: fieldId, name: q.key };
+			if ( q.required ) {
+				selectAttrs.required = 'required';
+			}
+			var select = el( 'select', selectAttrs );
+			( q.options || [] ).forEach( function ( opt ) {
+				select.appendChild( el( 'option', { value: opt.value, text: opt.label } ) );
+			} );
+			wrap.appendChild( select );
+			return { wrap: wrap, getValue: function () { return select.value; } };
+		}
+
+		if ( 'radio' === q.type ) {
+			// <fieldset>/<legend> plutôt qu'un <span> : plusieurs boutons radio
+			// partagent une seule question, un <label> classique ne peut
+			// s'associer qu'à UN SEUL champ. lion-rdv-devis-field y est quand
+			// même appliqué pour hériter du même comportement de grille — d'où
+			// le border/margin/padding/min-width réinitialisés en CSS (un
+			// <fieldset> a, comme un item de grille, un min-width par défaut
+			// non nul qui le ferait déborder de sa colonne sinon).
+			var fieldset = el( 'fieldset', { class: fieldClass } );
+			fieldset.appendChild( el( 'legend', { class: 'lion-rdv-devis-pill-legend', text: labelText } ) );
+			var group = el( 'div', { class: 'lion-rdv-devis-pill-group' } );
+			var radios = [];
+			( q.options || [] ).forEach( function ( opt, idx ) {
+				var radioId = fieldId + '-' + idx;
+				var radioAttrs = { type: 'radio', name: q.key, id: radioId, value: opt.value, class: 'lion-rdv-devis-pill-input' };
+				if ( q.required ) {
+					radioAttrs.required = 'required';
+				}
+				var radio = el( 'input', radioAttrs );
+				radios.push( radio );
+				group.appendChild( radio );
+				group.appendChild( el( 'label', { for: radioId, class: 'lion-rdv-devis-pill-label', text: opt.label } ) );
+			} );
+			fieldset.appendChild( group );
+			return {
+				wrap: fieldset,
+				getValue: function () {
+					var checked = radios.filter( function ( r ) { return r.checked; } )[ 0 ];
+					return checked ? checked.value : '';
+				},
+			};
+		}
+
+		// text / number / textarea
+		var textWrap = el( 'div', { class: fieldClass } );
+		textWrap.appendChild( el( 'label', { for: fieldId, text: labelText } ) );
+		var inputAttrs = { id: fieldId, name: q.key, type: 'number' === q.type ? 'number' : 'text' };
+		if ( q.required ) {
+			inputAttrs.required = 'required';
+		}
+		var input = 'textarea' === q.type ? el( 'textarea', inputAttrs ) : el( 'input', inputAttrs );
+		textWrap.appendChild( input );
+		return { wrap: textWrap, getValue: function () { return input.value.trim(); } };
+	}
+
 	function renderFormStep() {
 		var stepEl = stepShell( 'form' );
 		stepEl.appendChild( backButton( 'slots' ) );
@@ -279,9 +354,10 @@
 			] )
 		);
 
-		stepEl.appendChild( el( 'h3', { text: i18n.yourInfo } ) );
-
 		var form = el( 'form', { novalidate: 'novalidate' } );
+
+		form.appendChild( el( 'h3', { text: i18n.yourInfo } ) );
+
 		var grid = el( 'div', { class: 'lion-rdv-devis-form-grid' } );
 
 		var fFirst = field( 'first_name', i18n.firstName, 'text', { required: true } );
@@ -299,6 +375,21 @@
 
 		form.appendChild( grid );
 
+		// Questions "entonnoir" propres au type de projet choisi (budget,
+		// délai, puis les questions techniques spécifiques) : dégrossissent
+		// le dossier du client avant la visite. Jamais bloquantes par défaut.
+		var questionGetters = [];
+		if ( state.serviceQuestions && state.serviceQuestions.length ) {
+			form.appendChild( el( 'h3', { text: i18n.yourProject } ) );
+			var questionsGrid = el( 'div', { class: 'lion-rdv-devis-form-grid' } );
+			state.serviceQuestions.forEach( function ( q ) {
+				var rendered = renderQuestionField( q );
+				questionGetters.push( { key: q.key, getValue: rendered.getValue } );
+				questionsGrid.appendChild( rendered.wrap );
+			} );
+			form.appendChild( questionsGrid );
+		}
+
 		var honeypot = el( 'div', { class: 'lion-rdv-devis-honeypot' } );
 		var honeypotInput = el( 'input', { type: 'text', name: 'site_web', tabindex: '-1', autocomplete: 'off' } );
 		honeypot.appendChild( honeypotInput );
@@ -313,6 +404,14 @@
 				return;
 			}
 
+			var extraAnswers = {};
+			questionGetters.forEach( function ( q ) {
+				var value = q.getValue();
+				if ( value ) {
+					extraAnswers[ q.key ] = value;
+				}
+			} );
+
 			var payload = {
 				service: state.service,
 				start: state.selectedSlot.start,
@@ -325,6 +424,7 @@
 				postal_code: fPostal.input.value.trim(),
 				city: fCity.input.value.trim(),
 				message: fMessage.input.value.trim(),
+				extra_answers: extraAnswers,
 				site_web: honeypotInput.value,
 			};
 
@@ -389,6 +489,7 @@
 						state = {
 							step: 'service',
 							service: null,
+							serviceQuestions: [],
 							days: [],
 							activeDayIndex: 0,
 							selectedSlot: null,

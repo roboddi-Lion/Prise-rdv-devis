@@ -31,13 +31,14 @@ $status_labels = array(
 				<th><?php esc_html_e( 'Client', 'lion-rdv-devis' ); ?></th>
 				<th><?php esc_html_e( 'Coordonnées', 'lion-rdv-devis' ); ?></th>
 				<th><?php esc_html_e( 'Adresse', 'lion-rdv-devis' ); ?></th>
+				<th><?php esc_html_e( 'Détails du projet', 'lion-rdv-devis' ); ?></th>
 				<th><?php esc_html_e( 'Statut', 'lion-rdv-devis' ); ?></th>
 				<th><?php esc_html_e( 'Google Calendar', 'lion-rdv-devis' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 		<?php if ( empty( $bookings ) ) : ?>
-			<tr><td colspan="9"><?php esc_html_e( 'Aucune réservation pour le moment.', 'lion-rdv-devis' ); ?></td></tr>
+			<tr><td colspan="10"><?php esc_html_e( 'Aucune réservation pour le moment.', 'lion-rdv-devis' ); ?></td></tr>
 		<?php endif; ?>
 		<?php foreach ( $bookings as $booking ) : ?>
 			<tr>
@@ -48,6 +49,20 @@ $status_labels = array(
 				<td><?php echo esc_html( $booking->first_name . ' ' . $booking->last_name ); ?></td>
 				<td><?php echo esc_html( $booking->phone ); ?><br /><?php echo esc_html( $booking->email ); ?></td>
 				<td><?php echo esc_html( $booking->address . ', ' . $booking->postal_code . ' ' . $booking->city ); ?></td>
+				<td>
+					<?php
+					$extra_answers = $booking->extra_answers ? json_decode( $booking->extra_answers, true ) : null;
+					if ( is_array( $extra_answers ) && ! empty( $extra_answers ) ) :
+						?>
+						<ul style="margin:0;padding-left:16px;">
+							<?php foreach ( $extra_answers as $question_label => $answer ) : ?>
+								<li><?php echo esc_html( $question_label . ' : ' . $answer ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					<?php else : ?>
+						<span style="color:#996800;">–</span>
+					<?php endif; ?>
+				</td>
 				<td>
 					<?php $status = $booking->status; ?>
 					<span style="font-weight:600;color:<?php echo 'confirmed' === $status ? '#1a7f37' : ( 'failed' === $status ? '#c62828' : '#996800' ); ?>;">

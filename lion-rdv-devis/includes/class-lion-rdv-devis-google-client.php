@@ -341,8 +341,22 @@ class Lion_RDV_Devis_Google_Client {
 			sprintf( '%s : %s', __( 'Téléphone', 'lion-rdv-devis' ), $event_data['phone'] ),
 			sprintf( '%s : %s', __( 'Email', 'lion-rdv-devis' ), $event_data['email'] ),
 			sprintf( '%s : %s, %s %s', __( 'Adresse', 'lion-rdv-devis' ), $event_data['address'], $event_data['postal_code'], $event_data['city'] ),
-			sprintf( '%s : %s', __( 'Message', 'lion-rdv-devis' ), $event_data['message'] ? $event_data['message'] : '-' ),
 		);
+
+		// Réponses aux questions "entonnoir" du type de projet (budget, délai,
+		// puis les questions techniques spécifiques) : permettent de
+		// dégrossir le dossier avant la visite, directement visibles dans
+		// l'événement Google Calendar de la personne qui s'y rend.
+		if ( ! empty( $event_data['extra_answers'] ) && is_array( $event_data['extra_answers'] ) ) {
+			$description_lines[] = '';
+			$description_lines[] = __( 'Détails du projet :', 'lion-rdv-devis' );
+			foreach ( $event_data['extra_answers'] as $question_label => $answer ) {
+				$description_lines[] = sprintf( '- %s : %s', $question_label, $answer );
+			}
+		}
+
+		$description_lines[] = '';
+		$description_lines[] = sprintf( '%s : %s', __( 'Message', 'lion-rdv-devis' ), $event_data['message'] ? $event_data['message'] : '-' );
 
 		$body = array(
 			'summary'     => sprintf( '%s - %s %s', $event_data['service_label'], $event_data['first_name'], $event_data['last_name'] ),

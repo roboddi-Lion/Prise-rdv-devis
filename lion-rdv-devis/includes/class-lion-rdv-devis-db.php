@@ -37,6 +37,7 @@ class Lion_RDV_Devis_DB {
 			postal_code VARCHAR(10) NOT NULL,
 			city VARCHAR(100) NOT NULL,
 			message TEXT NULL,
+			extra_answers TEXT NULL,
 			status VARCHAR(20) NOT NULL DEFAULT 'pending',
 			assigned_person VARCHAR(20) NULL,
 			google_event_id VARCHAR(255) NULL,

@@ -35,6 +35,10 @@ class Lion_RDV_Devis_Shortcode {
 				'key'         => $key,
 				'label'       => $service['label'],
 				'description' => $service['description'],
+				// Questions "entonnoir" (communes + spécifiques à ce type de
+				// projet) affichées à l'étape "Vos coordonnées", pour
+				// dégrossir le dossier du client avant la visite technique.
+				'questions'   => Lion_RDV_Devis_Settings::get_questions_for_service( $key ),
 			);
 		}
 
@@ -55,6 +59,7 @@ class Lion_RDV_Devis_Shortcode {
 					'chooseTime'    => __( 'Choisissez un horaire', 'lion-rdv-devis' ),
 					'back'          => __( '← Retour', 'lion-rdv-devis' ),
 					'yourInfo'      => __( 'Vos coordonnées', 'lion-rdv-devis' ),
+					'yourProject'   => __( 'Votre projet', 'lion-rdv-devis' ),
 					'firstName'     => __( 'Prénom', 'lion-rdv-devis' ),
 					'lastName'      => __( 'Nom', 'lion-rdv-devis' ),
 					'phone'         => __( 'Téléphone', 'lion-rdv-devis' ),

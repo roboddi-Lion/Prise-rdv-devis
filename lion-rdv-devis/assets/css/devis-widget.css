@@ -388,8 +388,11 @@
 	}
 }
 
-.lion-rdv-devis-field label {
+.lion-rdv-devis-field label,
+.lion-rdv-devis-pill-legend {
 	display: block;
+	width: 100%;
+	padding: 0;
 	font-size: 0.72rem;
 	font-weight: 700;
 	letter-spacing: 0.05em;
@@ -399,7 +402,8 @@
 }
 
 .lion-rdv-devis-field input,
-.lion-rdv-devis-field textarea {
+.lion-rdv-devis-field textarea,
+.lion-rdv-devis-field select {
 	width: 100%;
 	padding: 0.75rem 0.85rem;
 	border: 1.5px solid var(--lion-rdv-border);
@@ -408,22 +412,91 @@
 	font-size: 1rem;
 	color: var(--lion-rdv-text);
 	background: var(--lion-rdv-bg);
+	cursor: pointer;
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.lion-rdv-devis-field input[type='text'],
+.lion-rdv-devis-field input[type='number'],
+.lion-rdv-devis-field input[type='tel'],
+.lion-rdv-devis-field input[type='email'],
+.lion-rdv-devis-field textarea {
+	cursor: auto;
+}
+
 .lion-rdv-devis-field input:hover,
-.lion-rdv-devis-field textarea:hover {
+.lion-rdv-devis-field textarea:hover,
+.lion-rdv-devis-field select:hover {
 	border-color: var(--lion-rdv-muted);
 }
 
 .lion-rdv-devis-field input:focus,
-.lion-rdv-devis-field textarea:focus {
+.lion-rdv-devis-field textarea:focus,
+.lion-rdv-devis-field select:focus {
 	outline: none;
 	border-color: var(--lion-rdv-primary);
 	/* color-mix() est ignoré par les navigateurs qui ne le supportent pas :
 	   la déclaration juste au-dessus reste alors le seul filet visible. */
 	box-shadow: 0 0 0 3px rgba(13, 73, 149, 0.1);
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lion-rdv-primary) 20%, transparent);
+}
+
+/* ---- Questions "entonnoir" à choix unique, en pilules ----
+   Reprend le motif .type-pill / .type-r:checked+.type-pill du formulaire
+   de contact existant du site : un vrai bouton radio, masqué visuellement,
+   dont l'étiquette adjacente sert de pilule cliquable et accessible. */
+
+/* Un <fieldset> a, comme un item de grille CSS, une largeur minimale par
+   défaut non nulle (min-content) : sans ce reset, il déborde de sa colonne
+   au lieu de laisser les pilules passer à la ligne — même bug que celui
+   déjà corrigé sur .lion-rdv-devis-service-card. Le reste neutralise
+   simplement le cadre/le fond que les navigateurs appliquent par défaut à
+   un <fieldset>, pour qu'il se comporte comme les autres .lion-rdv-devis-field. */
+fieldset.lion-rdv-devis-field {
+	min-width: 0;
+	border: none;
+	margin: 0;
+	padding: 0;
+}
+
+.lion-rdv-devis-pill-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.lion-rdv-devis-pill-input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.lion-rdv-devis-pill-label {
+	padding: 0.55rem 1.1rem;
+	border-radius: 999px;
+	border: 1.5px solid var(--lion-rdv-border);
+	font-size: 0.85rem;
+	font-weight: 700;
+	color: var(--lion-rdv-muted);
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.lion-rdv-devis-pill-input:hover + .lion-rdv-devis-pill-label {
+	border-color: var(--lion-rdv-primary);
+	color: var(--lion-rdv-primary);
+}
+
+.lion-rdv-devis-pill-input:checked + .lion-rdv-devis-pill-label {
+	background: var(--lion-rdv-primary);
+	border-color: var(--lion-rdv-primary);
+	color: #fff;
+}
+
+.lion-rdv-devis-pill-input:focus-visible + .lion-rdv-devis-pill-label {
+	outline: 2px solid var(--lion-rdv-primary);
+	outline-offset: 2px;
 }
 
 .lion-rdv-devis-honeypot {

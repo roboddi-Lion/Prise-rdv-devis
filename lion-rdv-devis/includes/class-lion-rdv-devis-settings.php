@@ -81,6 +81,84 @@ class Lion_RDV_Devis_Settings {
 	}
 
 	/**
+	 * Questions communes à tous les types de projet (budget, délai), posées
+	 * en plus des questions spécifiques au type choisi. Jamais obligatoires
+	 * (comme sur le formulaire de contact du site) pour ne pas ajouter de
+	 * friction avant la prise de rendez-vous.
+	 *
+	 * @return array Liste de questions, voir le format documenté sur
+	 *               default_services() (clé 'questions').
+	 */
+	public static function common_questions() {
+		return array(
+			array(
+				'key'      => 'budget',
+				'label'    => __( 'Budget estimatif', 'lion-rdv-devis' ),
+				'type'     => 'select',
+				'required' => false,
+				'options'  => array(
+					array(
+						'value' => '',
+						'label' => __( 'Non défini', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => 'moins_5k',
+						'label' => __( 'Moins de 5 000 €', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => '5k_15k',
+						'label' => __( '5 000 - 15 000 €', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => '15k_30k',
+						'label' => __( '15 000 - 30 000 €', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => '30k_50k',
+						'label' => __( '30 000 - 50 000 €', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => 'plus_50k',
+						'label' => __( 'Plus de 50 000 €', 'lion-rdv-devis' ),
+					),
+				),
+			),
+			array(
+				'key'      => 'delai',
+				'label'    => __( 'Délai souhaité', 'lion-rdv-devis' ),
+				'type'     => 'select',
+				'required' => false,
+				'options'  => array(
+					array(
+						'value' => '',
+						'label' => __( 'Non défini', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => 'asap',
+						'label' => __( 'Dès que possible', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => '3_mois',
+						'label' => __( 'Dans les 3 mois', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => '6_mois',
+						'label' => __( 'Dans les 6 mois', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => 'plus_6_mois',
+						'label' => __( 'Plus de 6 mois', 'lion-rdv-devis' ),
+					),
+					array(
+						'value' => 'renseigne',
+						'label' => __( 'Je me renseigne pour l\'instant', 'lion-rdv-devis' ),
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Types de projet proposés dans le widget, chacun associé à la ou aux
 	 * personnes dont l'agenda Google Calendar doit être consulté :
 	 *
@@ -93,6 +171,24 @@ class Lion_RDV_Devis_Settings {
 	 * Pour ajouter un nouveau type de projet, ajoutez une entrée ici avec une
 	 * clé unique ; elle apparaîtra automatiquement dans les réglages et le
 	 * widget.
+	 *
+	 * 'questions' : questions "entonnoir" spécifiques à ce type de projet,
+	 * posées à l'étape "Vos coordonnées" en plus des questions communes
+	 * (voir common_questions()), pour dégrossir le dossier du client avant
+	 * la visite technique. Chaque question a la forme :
+	 * array(
+	 *   'key'      => identifiant unique (clé de stockage/affichage),
+	 *   'label'    => libellé affiché,
+	 *   'type'     => 'text' | 'number' | 'textarea' | 'select' | 'radio',
+	 *   'required' => bool (aucune ne l'est par défaut, pour rester aussi
+	 *                 simple que le formulaire de contact existant du site),
+	 *   'full'     => bool optionnel, la question prend toute la largeur de
+	 *                 la grille (par défaut : une demi-largeur),
+	 *   'options'  => pour 'select'/'radio' uniquement, liste de
+	 *                 array('value' => ..., 'label' => ...).
+	 * )
+	 * Non éditable depuis l'administration WordPress pour l'instant :
+	 * modifiez cette liste directement dans le code (ou demandez à Claude).
 	 */
 	public static function default_services() {
 		return array(
@@ -102,6 +198,52 @@ class Lion_RDV_Devis_Settings {
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain' ),
+				'questions'        => array(
+					array(
+						'key'      => 'surface',
+						'label'    => __( 'Surface habitable (m²)', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+					array(
+						'key'      => 'annee_construction',
+						'label'    => __( 'Année de construction du logement', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'avant_1975', 'label' => __( 'Avant 1975', 'lion-rdv-devis' ) ),
+							array( 'value' => '1975_2000', 'label' => __( '1975 - 2000', 'lion-rdv-devis' ) ),
+							array( 'value' => '2000_2012', 'label' => __( '2000 - 2012', 'lion-rdv-devis' ) ),
+							array( 'value' => 'apres_2012', 'label' => __( 'Après 2012', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'chauffage_actuel',
+						'label'    => __( 'Chauffage actuel', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'gaz', 'label' => __( 'Chaudière gaz', 'lion-rdv-devis' ) ),
+							array( 'value' => 'fioul', 'label' => __( 'Chaudière fioul', 'lion-rdv-devis' ) ),
+							array( 'value' => 'electrique', 'label' => __( 'Chauffage électrique', 'lion-rdv-devis' ) ),
+							array( 'value' => 'pac', 'label' => __( 'Pompe à chaleur', 'lion-rdv-devis' ) ),
+							array( 'value' => 'autre', 'label' => __( 'Autre / je ne sais pas', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'aides',
+						'label'    => __( 'Souhaitez-vous être accompagné pour les aides (MaPrimeRénov\', CEE, Éco-PTZ) ?', 'lion-rdv-devis' ),
+						'type'     => 'radio',
+						'required' => false,
+						'full'     => true,
+						'options'  => array(
+							array( 'value' => 'oui', 'label' => __( 'Oui', 'lion-rdv-devis' ) ),
+							array( 'value' => 'non', 'label' => __( 'Non', 'lion-rdv-devis' ) ),
+						),
+					),
+				),
 			),
 			'cuisine'                => array(
 				'label'            => __( 'Cuisine', 'lion-rdv-devis' ),
@@ -109,6 +251,37 @@ class Lion_RDV_Devis_Settings {
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain' ),
+				'questions'        => array(
+					array(
+						'key'      => 'surface_cuisine',
+						'label'    => __( 'Surface de la cuisine (m²)', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+					array(
+						'key'      => 'configuration',
+						'label'    => __( 'Configuration souhaitée', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'fermee', 'label' => __( 'Cuisine fermée', 'lion-rdv-devis' ) ),
+							array( 'value' => 'ouverte', 'label' => __( 'Cuisine ouverte / à ouvrir', 'lion-rdv-devis' ) ),
+							array( 'value' => 'ne_sais_pas', 'label' => __( 'Je ne sais pas encore', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'ampleur',
+						'label'    => __( 'Ampleur des travaux', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'complete', 'label' => __( 'Cuisine à remplacer entièrement', 'lion-rdv-devis' ) ),
+							array( 'value' => 'partielle', 'label' => __( 'Rénovation partielle (façades, plan de travail...)', 'lion-rdv-devis' ) ),
+						),
+					),
+				),
 			),
 			'renovation_complete'    => array(
 				'label'            => __( 'Rénovation complète', 'lion-rdv-devis' ),
@@ -116,6 +289,42 @@ class Lion_RDV_Devis_Settings {
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain' ),
+				'questions'        => array(
+					array(
+						'key'      => 'surface',
+						'label'    => __( 'Surface totale du bien (m²)', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+					array(
+						'key'      => 'nb_pieces',
+						'label'    => __( 'Nombre de pièces concernées', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+					array(
+						'key'      => 'ampleur',
+						'label'    => __( 'Ampleur du projet', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'complete', 'label' => __( 'Rénovation complète (tous corps d\'état)', 'lion-rdv-devis' ) ),
+							array( 'value' => 'partielle', 'label' => __( 'Rénovation partielle de plusieurs pièces', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'occupation',
+						'label'    => __( 'Le bien sera-t-il habité pendant les travaux ?', 'lion-rdv-devis' ),
+						'type'     => 'radio',
+						'required' => false,
+						'full'     => true,
+						'options'  => array(
+							array( 'value' => 'habite', 'label' => __( 'Oui, habité', 'lion-rdv-devis' ) ),
+							array( 'value' => 'vide', 'label' => __( 'Non, vide', 'lion-rdv-devis' ) ),
+						),
+					),
+				),
 			),
 			'locaux_professionnels'  => array(
 				'label'            => __( 'Locaux professionnels', 'lion-rdv-devis' ),
@@ -123,6 +332,26 @@ class Lion_RDV_Devis_Settings {
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain' ),
+				'questions'        => array(
+					array(
+						'key'      => 'type_activite',
+						'label'    => __( 'Type d\'activité', 'lion-rdv-devis' ),
+						'type'     => 'text',
+						'required' => false,
+					),
+					array(
+						'key'      => 'surface',
+						'label'    => __( 'Surface des locaux (m²)', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+					array(
+						'key'      => 'ouverture_souhaitee',
+						'label'    => __( 'Date d\'ouverture / de remise en service souhaitée', 'lion-rdv-devis' ),
+						'type'     => 'text',
+						'required' => false,
+					),
+				),
 			),
 			'chauffage_climatisation' => array(
 				'label'            => __( 'Chauffage / Climatisation', 'lion-rdv-devis' ),
@@ -130,6 +359,39 @@ class Lion_RDV_Devis_Settings {
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'emmanuel' ),
+				'questions'        => array(
+					array(
+						'key'      => 'type_besoin',
+						'label'    => __( 'Nature du besoin', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'neuf', 'label' => __( 'Installation neuve', 'lion-rdv-devis' ) ),
+							array( 'value' => 'remplacement', 'label' => __( 'Remplacement d\'un équipement existant', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'type_equipement',
+						'label'    => __( 'Type d\'équipement concerné', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'chaudiere_gaz', 'label' => __( 'Chaudière gaz', 'lion-rdv-devis' ) ),
+							array( 'value' => 'chaudiere_fioul', 'label' => __( 'Chaudière fioul', 'lion-rdv-devis' ) ),
+							array( 'value' => 'pac', 'label' => __( 'Pompe à chaleur', 'lion-rdv-devis' ) ),
+							array( 'value' => 'clim', 'label' => __( 'Climatisation réversible', 'lion-rdv-devis' ) ),
+							array( 'value' => 'ne_sais_pas', 'label' => __( 'Je ne sais pas / à conseiller', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'nb_pieces',
+						'label'    => __( 'Nombre de pièces à équiper', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+				),
 			),
 			'salle_de_bain'          => array(
 				'label'            => __( 'Salle de bain', 'lion-rdv-devis' ),
@@ -137,8 +399,59 @@ class Lion_RDV_Devis_Settings {
 				'duration_minutes' => 60,
 				'lead_time_hours'  => 24,
 				'persons'          => array( 'romain', 'emmanuel' ),
+				'questions'        => array(
+					array(
+						'key'      => 'surface_sdb',
+						'label'    => __( 'Surface de la salle de bain (m²)', 'lion-rdv-devis' ),
+						'type'     => 'number',
+						'required' => false,
+					),
+					array(
+						'key'      => 'douche_baignoire',
+						'label'    => __( 'Douche ou baignoire ?', 'lion-rdv-devis' ),
+						'type'     => 'select',
+						'required' => false,
+						'options'  => array(
+							array( 'value' => '', 'label' => __( 'Non défini', 'lion-rdv-devis' ) ),
+							array( 'value' => 'douche', 'label' => __( 'Douche à l\'italienne', 'lion-rdv-devis' ) ),
+							array( 'value' => 'baignoire', 'label' => __( 'Baignoire', 'lion-rdv-devis' ) ),
+							array( 'value' => 'les_deux', 'label' => __( 'Les deux', 'lion-rdv-devis' ) ),
+							array( 'value' => 'ne_sais_pas', 'label' => __( 'Je ne sais pas encore', 'lion-rdv-devis' ) ),
+						),
+					),
+					array(
+						'key'      => 'pmr',
+						'label'    => __( 'Accès PMR (personne à mobilité réduite) souhaité ?', 'lion-rdv-devis' ),
+						'type'     => 'radio',
+						'required' => false,
+						'full'     => true,
+						'options'  => array(
+							array( 'value' => 'oui', 'label' => __( 'Oui', 'lion-rdv-devis' ) ),
+							array( 'value' => 'non', 'label' => __( 'Non', 'lion-rdv-devis' ) ),
+						),
+					),
+				),
 			),
 		);
+	}
+
+	/**
+	 * Questions à poser pour un type de projet donné : questions communes
+	 * (budget, délai) suivies des questions spécifiques à ce service.
+	 *
+	 * @return array
+	 */
+	public static function get_questions_for_service( $service_type ) {
+		$settings = self::get_settings();
+		$service  = $settings['services'][ $service_type ] ?? null;
+
+		if ( ! $service ) {
+			return array();
+		}
+
+		$specific = is_array( $service['questions'] ?? null ) ? $service['questions'] : array();
+
+		return array_merge( self::common_questions(), $specific );
 	}
 
 	public static function get_settings() {

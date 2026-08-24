@@ -69,8 +69,18 @@ class Lion_RDV_Devis_Notifications {
 			sprintf( '%s : %s', __( 'Téléphone', 'lion-rdv-devis' ), $booking['phone'] ),
 			sprintf( '%s : %s', __( 'Email', 'lion-rdv-devis' ), $booking['email'] ),
 			sprintf( '%s : %s, %s %s', __( 'Adresse', 'lion-rdv-devis' ), $booking['address'], $booking['postal_code'], $booking['city'] ),
-			sprintf( '%s : %s', __( 'Message', 'lion-rdv-devis' ), $booking['message'] ? $booking['message'] : '-' ),
 		);
+
+		// Réponses aux questions "entonnoir" du type de projet, pour
+		// dégrossir le dossier avant la visite technique.
+		if ( ! empty( $booking['extra_answers'] ) && is_array( $booking['extra_answers'] ) ) {
+			$lines[] = __( 'Détails du projet :', 'lion-rdv-devis' );
+			foreach ( $booking['extra_answers'] as $question_label => $answer ) {
+				$lines[] = sprintf( '- %s : %s', $question_label, $answer );
+			}
+		}
+
+		$lines[] = sprintf( '%s : %s', __( 'Message', 'lion-rdv-devis' ), $booking['message'] ? $booking['message'] : '-' );
 
 		if ( ! $google_result['success'] ) {
 			$lines[] = sprintf( '%s : %s', __( 'Erreur Google Calendar', 'lion-rdv-devis' ), $google_result['error'] );

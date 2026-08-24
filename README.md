@@ -130,8 +130,9 @@ automatiquement toutes les ~heure sans action de leur part.
    calcule les créneaux encore libres. Si les deux agendas sont concernés,
    les disponibilités sont fusionnées : un créneau est proposé dès qu'au
    moins l'un des deux est libre.
-3. Le visiteur choisit un jour puis un horaire, renseigne ses coordonnées et
-   valide.
+3. Le visiteur choisit un jour puis un horaire, renseigne ses coordonnées
+   **et répond à quelques questions courtes propres à son type de projet**
+   (voir ci-dessous), puis valide.
 4. Le plugin revérifie que le créneau est toujours libre (pour limiter les
    doubles réservations), détermine qui est effectivement disponible, puis
    crée l'événement dans l'agenda Google Calendar de la bonne personne, avec
@@ -144,6 +145,44 @@ automatiquement toutes les ~heure sans action de leur part.
    réservation est journalisée avec l'erreur dans **Réglages > Prise de RDV
    Devis Lion > Voir les réservations récentes** pour suivi manuel.
 6. Écran de confirmation identique au plugin de dépannage.
+
+## Questions "entonnoir" par type de projet
+
+En plus des coordonnées, l'étape finale pose quelques questions courtes
+pour dégrossir le dossier avant la visite technique — reprenant l'esprit
+du formulaire de contact déjà présent sur le site (budget, délai...) :
+
+- **Communes à tous les projets** : budget estimatif, délai souhaité.
+- **Spécifiques au type de projet**, par exemple :
+  - *Rénovation énergétique* : surface, année de construction, chauffage
+    actuel, accompagnement souhaité pour les aides (MaPrimeRénov', CEE...).
+  - *Cuisine* : surface, configuration (ouverte/fermée), ampleur des
+    travaux.
+  - *Rénovation complète* : surface, nombre de pièces, ampleur, occupation
+    pendant les travaux.
+  - *Locaux professionnels* : type d'activité, surface, date d'ouverture
+    souhaitée.
+  - *Chauffage / Climatisation* : nature du besoin (neuf/remplacement),
+    type d'équipement, nombre de pièces à équiper.
+  - *Salle de bain* : surface, douche ou baignoire, accès PMR.
+
+Aucune de ces questions n'est obligatoire par défaut (comme sur le
+formulaire de contact du site), pour ne pas ajouter de friction avant la
+prise de rendez-vous.
+
+Les réponses apparaissent :
+- dans la description de l'événement créé sur l'agenda Google Calendar de
+  la personne qui se rend chez le client ;
+- dans l'email de notification interne ;
+- dans **Réglages > Prise de RDV Devis Lion > Voir les réservations
+  récentes**, colonne « Détails du projet ».
+
+Cette liste de questions est définie dans le code
+(`Lion_RDV_Devis_Settings::common_questions()` et la clé `'questions'` de
+chaque service dans `default_services()`, dans
+`includes/class-lion-rdv-devis-settings.php`) plutôt que dans
+l'administration WordPress — demandez à Claude d'en ajouter, retirer ou
+reformuler à tout moment.
 
 ## Anti-spam
 
