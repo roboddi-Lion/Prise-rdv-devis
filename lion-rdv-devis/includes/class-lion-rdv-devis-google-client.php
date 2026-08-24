@@ -210,8 +210,26 @@ class Lion_RDV_Devis_Google_Client {
 	}
 
 	/**
-	 * Interroge le calendrier "primary" de la personne (FreeBusy) sur la
-	 * plage demandée.
+	 * Agenda Google Calendar de la personne à interroger/utiliser : son
+	 * "primary" par défaut, ou l'ID d'un agenda secondaire si renseigné dans
+	 * Réglages > Prise de RDV Devis Lion (ex. un agenda "...@group.calendar.google.com"
+	 * déjà partagé, avec droit de modification, au compte Google connecté
+	 * pour cette personne — sans ce partage préalable côté Google Calendar,
+	 * le jeton OAuth de la personne n'a simplement pas accès à cet agenda,
+	 * quelle que soit sa configuration ici).
+	 */
+	private function get_calendar_id( $person ) {
+		$settings    = Lion_RDV_Devis_Settings::get_settings();
+		$calendar_id = trim( (string) ( $settings['persons'][ $person ]['calendar_id'] ?? '' ) );
+
+		return '' !== $calendar_id ? $calendar_id : 'primary';
+	}
+
+	/**
+	 * Interroge le calendrier de la personne (FreeBusy) sur la plage demandée —
+	 * son agenda "primary" par défaut, ou l'agenda configuré via le réglage
+	 * "ID de l'agenda Google" si un agenda secondaire a été renseigné (voir
+	 * get_calendar_id()).
 	 *
 	 * @return array{success:bool,periods:array,error:?string} periods = liste de
 	 *         ['start' => DateTimeImmutable, 'end' => DateTimeImmutable]
@@ -226,10 +244,12 @@ class Lion_RDV_Devis_Google_Client {
 			);
 		}
 
+		$calendar_id = $this->get_calendar_id( $person );
+
 		$body = array(
 			'timeMin' => $start->format( DateTimeInterface::ATOM ),
 			'timeMax' => $end->format( DateTimeInterface::ATOM ),
-			'items'   => array( array( 'id' => 'primary' ) ),
+			'items'   => array( array( 'id' => $calendar_id ) ),
 		);
 
 		$response = $this->request( 'POST', self::CALENDAR_API_BASE . '/freeBusy', $token_result['access_token'], array(), $body );
@@ -247,8 +267,10 @@ class Lion_RDV_Devis_Google_Client {
 		// "aucun événement trouvé, créneau libre" — pour un outil de planning,
 		// une donnée absente ou dans un format inattendu doit faire échouer la
 		// disponibilité plutôt que la déclarer silencieusement libre (le
-		// risque inverse est un double rendez-vous chez le client).
-		if ( ! isset( $response['data']['calendars']['primary'] ) || ! is_array( $response['data']['calendars']['primary'] ) ) {
+		// risque inverse est un double rendez-vous chez le client). La réponse
+		// FreeBusy indexe "calendars" par l'ID exact envoyé dans la requête,
+		// pas forcément "primary" si un agenda secondaire est configuré.
+		if ( ! isset( $response['data']['calendars'][ $calendar_id ] ) || ! is_array( $response['data']['calendars'][ $calendar_id ] ) ) {
 			return array(
 				'success' => false,
 				'periods' => array(),
@@ -257,7 +279,7 @@ class Lion_RDV_Devis_Google_Client {
 			);
 		}
 
-		$raw   = $response['data']['calendars']['primary'];
+		$raw   = $response['data']['calendars'][ $calendar_id ];
 		$busy  = isset( $raw['busy'] ) && is_array( $raw['busy'] ) ? $raw['busy'] : array();
 		$error = isset( $raw['errors'] ) && ! empty( $raw['errors'] );
 
@@ -316,10 +338,11 @@ class Lion_RDV_Devis_Google_Client {
 	}
 
 	/**
-	 * Crée l'événement dans l'agenda "primary" de la personne assignée, avec
-	 * le client en participant ("attendee") : Google envoie automatiquement
-	 * une invitation par email au client (sendUpdates=all), sans action
-	 * supplémentaire du plugin.
+	 * Crée l'événement dans l'agenda de la personne assignée (son "primary"
+	 * par défaut, ou l'agenda secondaire configuré — voir get_calendar_id()),
+	 * avec le client en participant ("attendee") : Google envoie
+	 * automatiquement une invitation par email au client (sendUpdates=all),
+	 * sans action supplémentaire du plugin.
 	 *
 	 * @return array{success:bool,event_id:?string,event_link:?string,error:?string}
 	 */
@@ -383,7 +406,7 @@ class Lion_RDV_Devis_Google_Client {
 
 		$response = $this->request(
 			'POST',
-			self::CALENDAR_API_BASE . '/calendars/primary/events',
+			self::CALENDAR_API_BASE . '/calendars/' . rawurlencode( $this->get_calendar_id( $person ) ) . '/events',
 			$token_result['access_token'],
 			array( 'sendUpdates' => 'all' ),
 			$body

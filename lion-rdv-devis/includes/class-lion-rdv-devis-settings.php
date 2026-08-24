@@ -65,6 +65,12 @@ class Lion_RDV_Devis_Settings {
 				'refresh_token'    => '',
 				'token_expires_at' => 0,
 				'connected_email'  => '',
+				// Agenda Google Calendar réellement interrogé/utilisé pour cette
+				// personne : "primary" (son agenda par défaut) sauf si un agenda
+				// secondaire est renseigné ici (ex. un agenda partagé
+				// "...@group.calendar.google.com"). Voir
+				// Lion_RDV_Devis_Google_Client::get_calendar_id().
+				'calendar_id'      => 'primary',
 			);
 		}
 
@@ -699,12 +705,17 @@ class Lion_RDV_Devis_Settings {
 
 			// access_token/refresh_token sont déjà chiffrés à ce stade (voir
 			// save_person_tokens()) : de simples chaînes opaques, castées mais
-			// jamais ré-échappées comme du texte affichable.
+			// jamais ré-échappées comme du texte affichable. calendar_id, lui,
+			// vient du formulaire de réglages classique (champ "ID de l'agenda
+			// Google"), soumis en texte brut.
+			$calendar_id = isset( $incoming['calendar_id'] ) ? trim( sanitize_text_field( $incoming['calendar_id'] ) ) : ( $current['calendar_id'] ?? 'primary' );
+
 			$clean[ $person_key ] = array(
 				'access_token'     => isset( $incoming['access_token'] ) ? (string) $incoming['access_token'] : ( $current['access_token'] ?? '' ),
 				'refresh_token'    => isset( $incoming['refresh_token'] ) ? (string) $incoming['refresh_token'] : ( $current['refresh_token'] ?? '' ),
 				'token_expires_at' => isset( $incoming['token_expires_at'] ) ? (int) $incoming['token_expires_at'] : (int) ( $current['token_expires_at'] ?? 0 ),
 				'connected_email'  => isset( $incoming['connected_email'] ) ? sanitize_email( $incoming['connected_email'] ) : ( $current['connected_email'] ?? '' ),
+				'calendar_id'      => '' !== $calendar_id ? $calendar_id : 'primary',
 			);
 		}
 

@@ -84,7 +84,7 @@ $day_labels = array(
 						</strong>
 					</p>
 					<?php if ( empty( $test_result['periods'] ) ) : ?>
-						<p><?php esc_html_e( 'Aucun. Si vous vous attendiez à en voir un, vérifiez que l\'événement est bien marqué "Occupé" dans Google Calendar, sur le compte connecté ci-dessous, dans son agenda principal.', 'lion-rdv-devis' ); ?></p>
+						<p><?php esc_html_e( 'Aucun. Si vous vous attendiez à en voir un, vérifiez que l\'événement est bien marqué "Occupé" dans Google Calendar, sur le compte connecté ci-dessous, et dans l\'agenda actuellement configuré pour cette personne (voir "Agenda utilisé" plus bas, ou "Agenda Google utilisé par personne" dans le formulaire).', 'lion-rdv-devis' ); ?></p>
 					<?php else : ?>
 						<ul style="list-style:disc;margin-left:20px;">
 							<?php foreach ( $test_result['periods'] as $period ) : ?>
@@ -189,6 +189,31 @@ $day_labels = array(
 			</tr>
 		</table>
 
+		<h2><?php esc_html_e( 'Agenda Google utilisé par personne', 'lion-rdv-devis' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Par défaut, le plugin utilise l\'agenda principal ("primary") du compte Google connecté. Pour utiliser un agenda secondaire (ex. un agenda partagé), collez ici son ID — visible dans Google Calendar via Réglages de l\'agenda concerné > "Intégrer l\'agenda" > "ID de l\'agenda" (une adresse du type ...@group.calendar.google.com).', 'lion-rdv-devis' ); ?>
+			<strong><?php esc_html_e( 'Cet agenda doit déjà être partagé, avec le droit "Apporter des modifications aux événements", avec le compte Google connecté pour cette personne ci-dessous', 'lion-rdv-devis' ); ?></strong>
+			<?php esc_html_e( '— sans ce partage préalable, le plugin n\'y a simplement pas accès, quel que soit l\'ID renseigné ici.', 'lion-rdv-devis' ); ?>
+		</p>
+		<table class="widefat" style="max-width:700px;margin-bottom:1.5em;">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'Agenda', 'lion-rdv-devis' ); ?></th>
+					<th><?php esc_html_e( 'ID de l\'agenda Google', 'lion-rdv-devis' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php foreach ( $persons_labels as $person_key => $person_label ) : ?>
+				<tr>
+					<td><?php echo esc_html( $person_label ); ?></td>
+					<td>
+						<input type="text" name="<?php echo esc_attr( Lion_RDV_Devis_Settings::OPTION_KEY ); ?>[persons][<?php echo esc_attr( $person_key ); ?>][calendar_id]" value="<?php echo esc_attr( $settings['persons'][ $person_key ]['calendar_id'] ?? 'primary' ); ?>" class="regular-text" placeholder="primary" />
+					</td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+
 		<h2><?php esc_html_e( 'Horaires d\'ouverture', 'lion-rdv-devis' ); ?></h2>
 		<table class="widefat" style="max-width:900px;">
 			<thead>
@@ -239,6 +264,16 @@ $day_labels = array(
 						<?php if ( ! empty( $settings['persons'][ $person_key ]['connected_email'] ) ) : ?>
 							(<?php echo esc_html( $settings['persons'][ $person_key ]['connected_email'] ); ?>)
 						<?php endif; ?>
+						<br />
+						<span style="color:#646970;font-size:12px;">
+							<?php
+							printf(
+								/* translators: %s: calendar ID in use */
+								esc_html__( 'Agenda utilisé : %s', 'lion-rdv-devis' ),
+								esc_html( $settings['persons'][ $person_key ]['calendar_id'] ?? 'primary' )
+							);
+							?>
+						</span>
 					<?php else : ?>
 						<span style="color:#996800;">– <?php esc_html_e( 'Non connecté', 'lion-rdv-devis' ); ?></span>
 					<?php endif; ?>

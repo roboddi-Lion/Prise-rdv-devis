@@ -104,11 +104,37 @@ Google).
 
 Le bouton **« Vérifier l'agenda »** interroge Google Calendar en direct et
 affiche la liste des créneaux occupés détectés sur les 14 prochains jours
-pour cette personne. Comparez cette liste avec le contenu réel de son
-agenda Google : si un rendez-vous existant n'y apparaît pas, la cause est
-côté Google (mauvais compte connecté, événement marqué « Disponible » au
-lieu de « Occupé », ou agenda secondaire non couvert — seul l'agenda
-principal du compte connecté est consulté) plutôt que côté plugin.
+pour cette personne, sur l'agenda actuellement configuré pour elle (voir
+« Agenda utilisé » sur cette même ligne). Comparez cette liste avec le
+contenu réel de l'agenda en question : si un rendez-vous existant n'y
+apparaît pas, la cause est côté Google (mauvais compte connecté, événement
+marqué « Disponible » au lieu de « Occupé », ou mauvais agenda configuré)
+plutôt que côté plugin.
+
+### Utiliser un agenda secondaire (agenda partagé) plutôt que l'agenda principal
+
+Par défaut, chaque personne utilise son agenda Google principal
+(« primary »). Pour utiliser un autre agenda à la place — par exemple un
+agenda d'équipe partagé plutôt que l'agenda personnel de Romain ou
+Emmanuel :
+
+1. Dans Google Calendar, sur le compte qui possède/gère cet agenda,
+   partagez-le avec le compte Google connecté pour cette personne, avec
+   le droit **« Apporter des modifications aux événements »** (le simple
+   droit de consultation ne suffit pas : le plugin doit pouvoir y créer
+   des événements).
+2. Récupérez son ID : Réglages de l'agenda concerné > **« Intégrer
+   l'agenda »** > **« ID de l'agenda »** — une adresse du type
+   `abc123...@group.calendar.google.com`.
+3. Dans **Réglages > Prise de RDV Devis Lion**, section **« Agenda Google
+   utilisé par personne »**, collez cet ID en face de la personne
+   concernée, puis enregistrez.
+
+Sans ce partage préalable côté Google Calendar, le plugin n'a simplement
+pas accès à cet agenda, quel que soit l'ID renseigné ici — l'autorisation
+OAuth déjà donnée au plugin (voir ci-dessus) couvre automatiquement tous
+les agendas accessibles au compte connecté, pas seulement son agenda
+principal.
 
 ### Stockage des jetons
 
